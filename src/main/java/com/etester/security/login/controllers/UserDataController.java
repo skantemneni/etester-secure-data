@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.etester.security.login.models.User;
+import com.etester.security.login.payload.response.UserDetailsResponse;
 import com.etester.security.login.repository.JdbcUserRepository;
 import com.etester.security.login.repository.RoleRepository;
 import com.etester.security.login.security.jwt.JwtUtils;
@@ -44,7 +45,7 @@ public class UserDataController {
 	JwtUtils jwtUtils;
 
 	@GetMapping("/userdetails")
-	public ResponseEntity<User> findUserDetails (HttpServletResponse httpServletResponse, 
+	public ResponseEntity<UserDetailsResponse> findUserDetails (HttpServletResponse httpServletResponse, 
 			@RequestParam("username") final String username) {
 		boolean userExists = userRepository.existsByUsername(username);
 		Optional<User> user = null;
@@ -53,7 +54,8 @@ public class UserDataController {
 //			httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 			user = userRepository.findByUsername(username);
 			if (user.isPresent()) {
-				return ResponseEntity.ok().body(user.get());
+				UserDetailsResponse userDetailsResponse = new UserDetailsResponse(user.get());
+				return ResponseEntity.ok().body(userDetailsResponse);
 			}
 		}
 		log.info("User Not found for username: {}", username);
@@ -61,7 +63,7 @@ public class UserDataController {
 	}
 
 	@GetMapping("/currentuserdetails")
-	ResponseEntity<User> findCurrentUserDetails (HttpServletResponse httpServletResponse) {
+	ResponseEntity<UserDetailsResponse> findCurrentUserDetails (HttpServletResponse httpServletResponse) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		log.info("Calling findCurrentUserDetails for Current User: {}", username);
 
@@ -70,7 +72,8 @@ public class UserDataController {
 		if (userExists) {
 			user = userRepository.findByUsername(username);
 			if (user.isPresent()) {
-				return ResponseEntity.ok().body(user.get());
+				UserDetailsResponse userDetailsResponse = new UserDetailsResponse(user.get());
+				return ResponseEntity.ok().body(userDetailsResponse);
 			}
 		}
 		log.info("User Not found for username: {}", username);

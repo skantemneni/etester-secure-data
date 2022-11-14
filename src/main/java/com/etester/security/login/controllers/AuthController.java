@@ -28,7 +28,7 @@ import com.etester.security.login.models.User;
 import com.etester.security.login.payload.request.LoginRequest;
 import com.etester.security.login.payload.request.SignupRequest;
 import com.etester.security.login.payload.response.MessageResponse;
-import com.etester.security.login.payload.response.UserInfoResponse;
+import com.etester.security.login.payload.response.LoginUserInfoResponse;
 import com.etester.security.login.repository.JdbcUserRepository;
 import com.etester.security.login.repository.RoleRepository;
 import com.etester.security.login.security.jwt.JwtUtils;
@@ -99,7 +99,7 @@ public class AuthController {
 				// this line would allow reads if ALL headers in Javascript
 				// response.addHeader("Access-Control-Expose-Headers","*");
 				// ***************************************************************************************************************************************************************/
-				.body(new UserInfoResponse(jwtToken, userDetails.getIdUser(), userDetails.getUsername(),
+				.body(new LoginUserInfoResponse(jwtToken, userDetails.getIdUser(), userDetails.getUsername(),
 						userDetails.getEmailAddress(), roles));
 
 	}

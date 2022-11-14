@@ -2,7 +2,7 @@ package com.etester.security.login.payload.response;
 
 import java.util.List;
 
-public class UserInfoResponse {
+public class LoginUserInfoResponse {
 	private String token;
 	private String type = "Bearer";
 	private Long id;
@@ -10,7 +10,7 @@ public class UserInfoResponse {
 	private String email;
 	private List<String> roles;
 
-	public UserInfoResponse(String accessToken, Long id, String username, String email, List<String> roles) {
+	public LoginUserInfoResponse(String accessToken, Long id, String username, String email, List<String> roles) {
 		this.token = accessToken;
 		this.id = id;
 		this.username = username;
