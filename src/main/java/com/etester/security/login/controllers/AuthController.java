@@ -29,8 +29,8 @@ import com.etester.security.login.payload.request.LoginRequest;
 import com.etester.security.login.payload.request.SignupRequest;
 import com.etester.security.login.payload.response.MessageResponse;
 import com.etester.security.login.payload.response.UserInfoResponse;
+import com.etester.security.login.repository.JdbcUserRepository;
 import com.etester.security.login.repository.RoleRepository;
-import com.etester.security.login.repository.UserRepository;
 import com.etester.security.login.security.jwt.JwtUtils;
 import com.etester.security.login.security.services.UserDetailsImpl;
 
@@ -42,7 +42,7 @@ public class AuthController {
 	AuthenticationManager authenticationManager;
 
 	@Autowired
-	UserRepository userRepository;
+	JdbcUserRepository userRepository;
 
 	@Autowired
 	RoleRepository roleRepository;
@@ -171,4 +171,7 @@ public class AuthController {
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
 				.body(new MessageResponse("You've been signed out!"));
 	}
+	
+	
+	
 }
