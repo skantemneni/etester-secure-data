@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 // @CrossOrigin("http://localhost:4200")
-@CrossOrigin
+//@CrossOrigin
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/data/usertest")
 // @Profile("cloud")
 public class EtesterUsertestController {
@@ -88,6 +90,7 @@ public class EtesterUsertestController {
 	 * @param idUsertest
 	 * @return
 	 */
+	  @PreAuthorize("hasRole('USER') or hasRole('PROVIDER') or hasRole('ADMIN')")
 	@GetMapping("/usertestresponse/get/{idUsertest}")
 	TestWithResponse findTestByUsertestIdWithResponse(HttpServletResponse httpServletResponse, @PathVariable Long idUsertest) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
