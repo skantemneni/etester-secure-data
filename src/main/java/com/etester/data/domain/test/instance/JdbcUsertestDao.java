@@ -96,6 +96,16 @@ public class JdbcUsertestDao extends JdbcDataDaoParent implements UsertestDao {
 //	}
 //
 	@Override
+	public List<Usertest> findAllUsertestsForUsername(String username) {
+        String sql = findAllUsertestsForUserNameSQL;
+        BeanPropertyRowMapper<Usertest> usertestRowMapper = BeanPropertyRowMapper.newInstance(Usertest.class);
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("username", username);
+        List<Usertest> tests = getNamedParameterJdbcTemplate().query(sql, args, usertestRowMapper);
+        return tests;
+	}
+
+	@Override
 	public List<Usertest> findAllAssignedUsertestsForCurrentUser() {
 		List<Usertest> resultList = null;
 		String loggedinUsername = JdbcDaoStaticHelper.getCurrentUserName();

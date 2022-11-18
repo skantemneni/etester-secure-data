@@ -21,6 +21,17 @@ public interface UsertestDao {
 	
 	// Note the Order-By clause.  Should order the results by Provider Name and then usertest id.  
 	// note that I am using the p.username in the Order-By clause instead of ut.id_provider because I want the results in Alphabetical Order
+	
+	public static String findAllUsertestsForUserNameSQL = "SELECT ut.*, p.username AS associatedUserName, p.first_name AS associatedFirstName, p.last_name AS associatedLastName, pr.name AS profile_name "
+			+ "FROM usertest ut INNER JOIN test t ON ut.id_test = t.id_test "
+			+ "					INNER JOIN user u ON u.id_user = ut.id_user "
+			+ "					INNER JOIN user p  ON p.id_user = ut.id_provider "
+			+ "					LEFT JOIN profile pr  ON ut.id_profile = pr.id_profile "
+			+ "WHERE u.username = :username "
+			+ "ORDER BY pr.name, p.username, ut.id_usertest";
+		
+	// Note the Order-By clause.  Should order the results by Provider Name and then usertest id.  
+	// note that I am using the p.username in the Order-By clause instead of ut.id_provider because I want the results in Alphabetical Order
 	public static String findAllAssignedUsertestsForUserNameSQL = "SELECT ut.*, p.username AS associatedUserName, p.first_name AS associatedFirstName, p.last_name AS associatedLastName, pr.name AS profile_name "
 			+ "FROM usertest ut INNER JOIN test t ON ut.id_test = t.id_test "
 			+ "					INNER JOIN user u ON u.id_user = ut.id_user "
@@ -134,6 +145,8 @@ public interface UsertestDao {
     public TestResponse findUsertestresponseForTest(Long idTest);
  
     // user usertest requests
+    
+    public List<Usertest> findAllUsertestsForUsername(String username);
     public List<Usertest> findAllAssignedUsertestsForCurrentUser();
     public List<Usertest> findAllAssignedUsertestsForUsername(String username);
     public List<Usertest> findAssignedUsertestsForCurrentUserByType(String testType);

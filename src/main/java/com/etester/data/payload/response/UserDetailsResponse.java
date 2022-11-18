@@ -3,7 +3,6 @@ package com.etester.data.payload.response;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.etester.data.domain.content.ChannelSubscription;
 import com.etester.data.domain.content.core.Channel;
 import com.etester.data.domain.profile.Userprofile;
 import com.etester.data.domain.test.instance.Usertest;
@@ -22,11 +21,13 @@ public class UserDetailsResponse {
 	private String emailAddress;
 	private List<String> roles;
 	private List<String> permissions;
+	// TODO: I will look into keeping "tests" 
 	private List<Usertest> tests;
+	// TODO: I will look into keeping "profiles" 
 	private List<Userprofile> profiles;
-	private List<ChannelSubscription> channelSubscriptions;
-	private List<Long> idOrganizationsList;
+	// Only providers may have organizationName filled in
 	private String organizationName;
+	// Only providers may have idOrganization filled in
 	private Long idOrganization;
 	private List<Channel> channels;
 	private List<Channel> subscriptions;
@@ -47,8 +48,6 @@ public class UserDetailsResponse {
 		this.permissions = user.getPermissions();
 		this.tests = user.getTests();
 		this.profiles = user.getProfiles();
-		this.channelSubscriptions = user.getChannelSubscriptions();
-		this.idOrganizationsList = user.getIdOrganizationsList();
 		this.organizationName = user.getOrganizationName();
 		this.idOrganization = user.getIdOrganization();
 		this.channels = user.getChannels();

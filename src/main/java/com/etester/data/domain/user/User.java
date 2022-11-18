@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.etester.data.domain.admin.Authority;
@@ -18,14 +16,17 @@ import com.etester.data.domain.profile.Userprofile;
 import com.etester.data.domain.test.instance.Usertest;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString(includeFieldNames=true)
+
 // @Entity
 // @Table(name="user")
 public class User /* extends org.springframework.security.core.userdetails.User */ {
 
-	private static final long serialVersionUID = 1L;
-	
+//	private static final long serialVersionUID = 1L;
+//	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
@@ -55,13 +56,6 @@ public class User /* extends org.springframework.security.core.userdetails.User 
 	
 	@Transient private List<Userprofile> profiles;
 	
-	// private webuser (containing extended user attributes - used in programmatically loading users)
-	@Transient private Webuser webuser;
-	// private channelSubscriptions list of Subscription channels and durations - used in programmatically loading users
-	@Transient private List<ChannelSubscription> channelSubscriptions;
-	// private studentOrganizations corresponding to the organizations the student is associated with - used in programmatically loading users
-	@Transient private List<Long> idOrganizationsList;
-
 	// organizationName corresponding to id_organization
 	private String organizationName;
     
@@ -82,7 +76,7 @@ public class User /* extends org.springframework.security.core.userdetails.User 
     }
 
 	public User(String username, String password) {
-		this (username, password, new ArrayList());
+		this (username, password, new ArrayList<Authority>());
 	}
 
     public User(Long idUser, String username, String password, String firstName, String lastName, String middleName, List<Authority> authorities) {
@@ -93,25 +87,16 @@ public class User /* extends org.springframework.security.core.userdetails.User 
         this.middleName = middleName;
     }
 
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "User [idUser=" + idUser + ", username=" + username
-				+ ", password=" + password + ", enabled=" + enabled
-				+ ", emailAddress=" + emailAddress + ", firstName=" + firstName
-				+ ", lastName=" + lastName + ", middleName=" + middleName
-				+ ", fullName=" + fullName + ", authorities=" + authorities
-				+ ", permissions=" + permissions + ", tests=" + tests
-				+ ", profiles=" + profiles + ", webuser=" + webuser
-				+ ", channelSubscriptions=" + channelSubscriptions
-				+ ", idOrganizationsList=" + idOrganizationsList
-				+ ", organizationName=" + organizationName
-				+ ", idOrganization=" + idOrganization + ", channels="
-				+ channels + ", subscriptions=" + subscriptions + "]";
-	}
+    /*************************************************************************************************************************************************
+     * used in programmatically loading users
+     *************************************************************************************************************************************************/
+    // TODO: I may have to delete these later
+	// private webuser (containing extended user attributes - used in programmatically loading users)
+	@Transient private Webuser webuser;
+	// private channelSubscriptions list of Subscription channels and durations - used in programmatically loading users
+	@Transient private List<ChannelSubscription> channelSubscriptions;
+	// private studentOrganizations corresponding to the organizations the student is associated with - used in programmatically loading users
+	@Transient private List<Long> idOrganizationsList;
 
 
 }

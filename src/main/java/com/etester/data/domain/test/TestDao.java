@@ -211,6 +211,8 @@ public interface TestDao {
 //
     public Test findByTestId(Long idTest);
 
+    public Test findCompleteTestById(Long idTest);
+
 	public List<Test> findTestsByTestName(String name);
 	
     public List<Test> findAllTests();

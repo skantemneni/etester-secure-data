@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/data/user")
-public class UserDataController {
+public class UserController {
 	@Autowired
 	JdbcUserDetailsRepository userDetailsRepository;
 

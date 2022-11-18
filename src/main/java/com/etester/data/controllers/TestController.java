@@ -38,15 +38,14 @@ import lombok.extern.slf4j.Slf4j;
 // @CrossOrigin("http://localhost:4200")
 //@CrossOrigin
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/data/usertest")
-// @Profile("cloud")
-public class EtesterUsertestController {
+@RequestMapping("/api/data/test")
+public class TestController {
 
 	private final JdbcUsertestDao usertestDao;
 	private final JdbcUsertestresponseDao usertestresponseDao;
 	private final TestDao testDao;
 
-	public EtesterUsertestController(JdbcUsertestDao usertestDao, JdbcUsertestresponseDao usertestresponseDao, TestDao testDao) {
+	public TestController(JdbcUsertestDao usertestDao, JdbcUsertestresponseDao usertestresponseDao, TestDao testDao) {
 		this.usertestDao = usertestDao;
 		this.usertestresponseDao = usertestresponseDao;
 		this.testDao = testDao;
@@ -59,12 +58,26 @@ public class EtesterUsertestController {
 	 * @param idTest
 	 * @return
 	 */
-	@GetMapping("/test/get/{idTest}")
-	Test findTestByTestId(HttpServletResponse httpServletResponse, @PathVariable Long idTest) {
+	@GetMapping("/get/test/{idTest}")
+	Test getTest(HttpServletResponse httpServletResponse, @PathVariable Long idTest) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		log.info("User: {} is calling findTestById for Test with ID: {}", username, idTest);
+		log.info("User: {} is calling getTest for Test with ID: {}", username, idTest);
 		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 		return testDao.findByTestId(idTest);
+	}
+
+	/**
+	 * This retrieves the Test  for administering the test in the eTester User app.  
+	 * @param httpServletResponse
+	 * @param idTest
+	 * @return
+	 */
+	@GetMapping("/get/completetest/{idTest}")
+	Test getCompleteTest(HttpServletResponse httpServletResponse, @PathVariable Long idTest) {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		log.info("User: {} is calling getCompleteTest for Test with ID: {}", username, idTest);
+		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+		return testDao.findCompleteTestById(idTest);
 	}
 
 	/**
@@ -74,10 +87,10 @@ public class EtesterUsertestController {
 	 * @param idTest
 	 * @return
 	 */
-	@GetMapping("/currentuserresponsefortest/{idTest}")
-	TestResponse findCurrentUserResponseForTest(HttpServletResponse httpServletResponse, @PathVariable Long idTest) {
+	@GetMapping("/get/response/{idTest}")
+	TestResponse getResponse(HttpServletResponse httpServletResponse, @PathVariable Long idTest) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		log.info("User: {} is calling findTestById for Test with ID: {}", username, idTest);
+		log.info("User: {} is calling getResponse for Test with ID: {}", username, idTest);
 		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 		return this.usertestDao.findUsertestresponseForTest(idTest);
 	}
@@ -91,10 +104,10 @@ public class EtesterUsertestController {
 	 * @return
 	 */
 	  @PreAuthorize("hasRole('USER') or hasRole('PROVIDER') or hasRole('ADMIN')")
-	@GetMapping("/usertestresponse/get/{idUsertest}")
-	TestWithResponse findTestByUsertestIdWithResponse(HttpServletResponse httpServletResponse, @PathVariable Long idUsertest) {
+	@GetMapping("/get/testwithresponse/{idUsertest}")
+	TestWithResponse getTestWithResponse(HttpServletResponse httpServletResponse, @PathVariable Long idUsertest) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		log.info("User: {} is calling findTestByUsertestIdWithResponse for User test with ID: {}", username, idUsertest);
+		log.info("User: {} is calling getTestWithResponse for User test with ID: {}", username, idUsertest);
 		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 		return testDao.findTestByUsertestIdWithResponse(idUsertest);
 	}
@@ -107,16 +120,16 @@ public class EtesterUsertestController {
 	 * 							 Completed=true triggers subsequent workflow for grading on an asynchronous thread  
 	 * @return
 	 */
-	@PostMapping("/usertestresponse/save")
+	@PostMapping("/save/response")
 	@ResponseBody
-	Usertestresponse saveUsertestResponse(HttpServletRequest httpServletRequest, 
+	Usertestresponse saveResponse(HttpServletRequest httpServletRequest, 
 			HttpServletResponse httpServletResponse, 
 			@RequestBody Usertestresponse usertestresponse
 			) {
 		
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Long idUsertest = usertestresponse.getIdUsertest();
-		log.info("User: {} is calling saveUsertestResponse for Usertest with ID: {}", username, idUsertest);
+		log.info("User: {} is calling saveResponse for Usertest with ID: {}", username, idUsertest);
 		this.usertestresponseDao.saveTestResponse(usertestresponse);
 		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 		return usertestresponse;
@@ -127,21 +140,27 @@ public class EtesterUsertestController {
 	 * @param httpServletResponse
 	 * @return List<Usertest>
 	 */
-	@GetMapping("/allforcurrentuser")
-	List<Usertest> findAllAssignedUsertestsForCurrentUser(HttpServletResponse httpServletResponse) {
-		log.info("User: {} is calling findAllAssignedUsertestsForCurrentUser", SecurityContextHolder.getContext().getAuthentication().getName());
+	@GetMapping("/get/alltestsforcurrentuser")
+	List<Usertest> getAllTestsForCurrentUser(HttpServletResponse httpServletResponse) {
+		log.info("User: {} is calling getAllTestsForCurrentUser", SecurityContextHolder.getContext().getAuthentication().getName());
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 		return findAllAssignedUsertestsForUsernameInternal(username);
 	}
-	@GetMapping("/allforusername/{username}")
-	List<Usertest> findAllAssignedUsertestsForUsername(HttpServletResponse httpServletResponse, @PathVariable String username) {
-		log.info("User: {} is calling findAllAssignedUsertestsForUsername for: " + username, SecurityContextHolder.getContext().getAuthentication().getName());
+	@GetMapping("/get/alltestsforusername/{username}")
+	List<Usertest> getAllTestsForForUsername(HttpServletResponse httpServletResponse, @PathVariable String username) {
+		log.info("User: {} is calling getAllTestsForForUsername for: " + username, SecurityContextHolder.getContext().getAuthentication().getName());
 		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
 		return findAllAssignedUsertestsForUsernameInternal(username);
 	}
+	/**
+	 * findAllAssignedUsertestsForUsernameInternal calls "usertestDao.findAllUsertestsForUsername" which retrieves tests in all states - assigned, started, correctione etc.
+	 * There is another method findAllAssignedUsertestsForUsername that would limit to assigned and started states only.
+	 * @param username
+	 * @return
+	 */
 	private List<Usertest> findAllAssignedUsertestsForUsernameInternal(String username) {
-		return usertestDao.findAllAssignedUsertestsForUsername(username);
+		return usertestDao.findAllUsertestsForUsername(username);
 	}
 	
 	
@@ -152,23 +171,23 @@ public class EtesterUsertestController {
 	
 	
 	
-	
-	
-	
-	@GetMapping("/usertest/{idUsertest}")
-	Usertest findByUsertestId(HttpServletResponse httpServletResponse, @PathVariable Long idUsertest) {
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		log.info("User: {} is calling findByUsertestId for User test with ID: {}", username, idUsertest);
-		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-		return usertestDao.findByUsertestId(idUsertest);
-	}
-
-	@GetMapping("/userid/{id}")
-	List<Usertest> findAllAssignedUsertestsForUserId(HttpServletResponse httpServletResponse, @PathVariable Long id) {
-		log.info("User: {} is calling findAllAssignedUsertestsForUserId for: " + id, SecurityContextHolder.getContext().getAuthentication().getName());
-		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-		return usertestDao.findAllAssignedUsertestsForUserId(id);
-	}
-	
+//	
+//	
+//	
+//	@GetMapping("/usertest/{idUsertest}")
+//	Usertest findByUsertestId(HttpServletResponse httpServletResponse, @PathVariable Long idUsertest) {
+//		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//		log.info("User: {} is calling findByUsertestId for User test with ID: {}", username, idUsertest);
+//		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+//		return usertestDao.findByUsertestId(idUsertest);
+//	}
+//
+//	@GetMapping("/userid/{id}")
+//	List<Usertest> findAllAssignedUsertestsForUserId(HttpServletResponse httpServletResponse, @PathVariable Long id) {
+//		log.info("User: {} is calling findAllAssignedUsertestsForUserId for: " + id, SecurityContextHolder.getContext().getAuthentication().getName());
+//		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+//		return usertestDao.findAllAssignedUsertestsForUserId(id);
+//	}
+//	
 	
 }

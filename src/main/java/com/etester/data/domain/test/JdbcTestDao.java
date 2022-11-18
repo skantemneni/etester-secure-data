@@ -45,6 +45,22 @@ public class JdbcTestDao extends JdbcDataDaoParent implements TestDao {
 
 	@Override
 	public Test findByTestId(Long idTest) {
+		boolean withSectionDetails = false;
+		return findByTestId(idTest, withSectionDetails);
+	}
+
+	@Override
+	public Test findCompleteTestById(Long idTest) {
+		// This may be an expensive opetation.  Falling back to some we use for administration
+		//		boolean withSectionDetails = true;
+		//		return findByTestId(idTest, withSectionDetails);
+		
+		// note that this uses a state of Etester at time of query.  If its caching, info comes out of cache.  Otherwise the  test is recreated.
+        return locateTestInSystem(idTest);
+
+	}
+
+	private Test findByTestId(Long idTest, boolean withSectionDetails) {
         String sql = findByTestIdSQL;
         BeanPropertyRowMapper<Test> testRowMapper = BeanPropertyRowMapper.newInstance(Test.class);
         Map<String, Object> args = new HashMap<String, Object>();
@@ -57,7 +73,7 @@ public class JdbcTestDao extends JdbcDataDaoParent implements TestDao {
         } catch (IncorrectResultSizeDataAccessException e) {}
         // set testsegments
         if (test != null) {
-        	test.setTestsegments(findTestsegmentsForTest(test.getIdTest()));
+        	test.setTestsegments(findTestsegmentsForTest(test.getIdTest(), withSectionDetails));
         }
         return test;
 	}
@@ -663,7 +679,7 @@ public class JdbcTestDao extends JdbcDataDaoParent implements TestDao {
 	}
 
 	// convenience method to grab skills associated with a topic
-	public List<Testsegment> findTestsegmentsForTest (Long idTest) {
+	private List<Testsegment> findTestsegmentsForTest (Long idTest) {
 		return findTestsegmentsForTest(idTest, false);
 	}
 	private List<Testsegment> findTestsegmentsForTest (Long idTest, boolean withSectionDetails) {
