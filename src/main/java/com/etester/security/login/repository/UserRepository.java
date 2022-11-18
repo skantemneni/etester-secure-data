@@ -2,7 +2,7 @@ package com.etester.security.login.repository;
 
 import java.util.Optional;
 
-import com.etester.security.login.models.User;
+import com.etester.security.login.models.LoginUser;
 
 public interface UserRepository {
 
@@ -21,11 +21,11 @@ public interface UserRepository {
 	// update
 	public static String updateUserMetadataSQL = "UPDATE user SET first_name = :firstName, last_name = :lastName, email_address = :emailAddress, middle_name = :middleName WHERE username = :username";
 
-	Optional<User> findByUsername(String username);
+	Optional<LoginUser> findByUsername(String username);
 
 	Boolean existsByUsername(String username);
 
 	Boolean existsByEmailAddress(String emailAddress);
 
-	public Optional<User> save(User user);
+	public Optional<LoginUser> save(LoginUser user);
 }

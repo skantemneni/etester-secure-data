@@ -118,6 +118,12 @@ public interface UserDao {
 			" 			LEFT JOIN organization o on op.id_organization = o.id_organization " +
 			" WHERE u.username = :username";
 
+	public static String findByUserIdWithOrganizationSQL = 
+			" SELECT u.*, o.id_organization AS id_organization, o.`name` AS organization_name " +
+			" FROM user u LEFT JOIN organization_provider op ON u.id_user = op.id_provider " +  
+			" 			LEFT JOIN organization o on op.id_organization = o.id_organization " +
+			" WHERE u.id_user = :idUser";
+
 //	public static String findChannelsByOrganizationIdSQL =  
 //			" SELECT s.id_system AS id_system, s.`name` AS name " +
 //			" FROM organization_channel oc LEFT JOIN system s on oc.id_channel = s.id_system " +
@@ -164,15 +170,19 @@ public interface UserDao {
 
     public User findByUserId(Long idUser);
 
+    public User findByUserIdWithDetails(Long idUser);
+
     public User findByUsername(String username);
     
-    public User findByUsernameForLogin(String username);
+    public User findByUsernameWithDetails(String username);
+    
+//    public User findByUsernameForLogin(String username);
     
     public boolean doesUserExistByUsername(String username);
 
     public boolean doesUserExistByUserId(Long idUser);
 
-    public User findCurrentUserDetails();
+//    public User findCurrentUserDetails();
 
     public List<User> findAll();
 

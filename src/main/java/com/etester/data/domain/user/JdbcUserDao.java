@@ -204,7 +204,7 @@ public class JdbcUserDao extends NamedParameterJdbcDaoSupport implements UserDao
 		webuser.setFirstName(user.getFirstName());
 		webuser.setLastName(user.getLastName());
 		webuser.setEmailAddress(user.getEmailAddress());
-		webuser.setEnabled(user.getEnabled());
+		webuser.setEnabled(user.isEnabled());
 		
 		webuser.setGender("M");
 		webuser.setAddressLine1("1234 Winding Cape Way");
@@ -506,26 +506,37 @@ public class JdbcUserDao extends NamedParameterJdbcDaoSupport implements UserDao
 	}
 
 	@Override
-	public User findByUsernameForLogin(String username) {
-		// Although this should be as simle as this, we have to go through some hoops because our User which extends 
-		// org.springframework.security.core.userdetails.User does not have a setUsername() and setPassword() methods.
-//        String sql = findByUsernameForLoginSQL;
-//        BeanPropertyRowMapper<User> webuserRowMapper = BeanPropertyRowMapper.newInstance(User.class);
-//        Map<String, Object> args = new HashMap<String, Object>();
-//        args.put("username", username);
-//		// queryForObject throws an exception when the Level is missing.  this should be ignored/swallowed
-//        User user = null;
-//        try {
-//        	user = getNamedParameterJdbcTemplate().queryForObject(sql, args, webuserRowMapper);
-//        } catch (IncorrectResultSizeDataAccessException e) {}
-//        return user;
-		User u = JdbcDaoStaticHelper.findUserByUsernameForLogin(getNamedParameterJdbcTemplate(), username);
-		return u;
+	public User findByUserIdWithDetails(Long idUser) {
+		return JdbcDaoStaticHelper.findUserByUserId(getNamedParameterJdbcTemplate(), idUser, true);
 	}
+
+//	@Override
+//	public User findByUsernameForLogin(String username) {
+//		// Although this should be as simle as this, we have to go through some hoops because our User which extends 
+//		// org.springframework.security.core.userdetails.User does not have a setUsername() and setPassword() methods.
+////        String sql = findByUsernameForLoginSQL;
+////        BeanPropertyRowMapper<User> webuserRowMapper = BeanPropertyRowMapper.newInstance(User.class);
+////        Map<String, Object> args = new HashMap<String, Object>();
+////        args.put("username", username);
+////		// queryForObject throws an exception when the Level is missing.  this should be ignored/swallowed
+////        User user = null;
+////        try {
+////        	user = getNamedParameterJdbcTemplate().queryForObject(sql, args, webuserRowMapper);
+////        } catch (IncorrectResultSizeDataAccessException e) {}
+////        return user;
+//		User u = JdbcDaoStaticHelper.findUserByUsernameForLogin(getNamedParameterJdbcTemplate(), username);
+//		return u;
+//	}
 
 	@Override
 	public User findByUsername(String username) {
 		User u = JdbcDaoStaticHelper.findUserByUsername(getNamedParameterJdbcTemplate(), username);
+		return u;
+	}
+
+	@Override
+	public User findByUsernameWithDetails(String username) {
+		User u = JdbcDaoStaticHelper.findUserByUsername(getNamedParameterJdbcTemplate(), username, true);
 		return u;
 	}
 
@@ -543,11 +554,11 @@ public class JdbcUserDao extends NamedParameterJdbcDaoSupport implements UserDao
         return user;
 	}
 
-	@Override
-	public User findCurrentUserDetails() {
-		User user = JdbcDaoStaticHelper.findCurrentUser(getNamedParameterJdbcTemplate());
-		return user == null ? new User() : user;
-	}
+//	@Override
+//	public User findCurrentUserDetails() {
+//		User user = JdbcDaoStaticHelper.findCurrentUser(getNamedParameterJdbcTemplate());
+//		return user == null ? new User() : user;
+//	}
 
 	@Override
 	public List<User> findAll() {

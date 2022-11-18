@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.etester.security.login.models.ERole;
 import com.etester.security.login.models.Role;
-import com.etester.security.login.models.User;
+import com.etester.security.login.models.LoginUser;
 import com.etester.security.login.payload.request.LoginRequest;
 import com.etester.security.login.payload.request.SignupRequest;
 import com.etester.security.login.payload.response.MessageResponse;
@@ -125,7 +125,7 @@ public class AuthController {
 		}
 
 		// Create new user's account
-		User user = new User(signUpRequest.getUsername(), signUpRequest.getFirstName(), signUpRequest.getLastName(),
+		LoginUser user = new LoginUser(signUpRequest.getUsername(), signUpRequest.getFirstName(), signUpRequest.getLastName(),
 				signUpRequest.getMiddleName(), signUpRequest.getEmailAddress(),
 				encoder.encode(signUpRequest.getPassword()));
 
@@ -171,6 +171,37 @@ public class AuthController {
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
 				.body(new MessageResponse("You've been signed out!"));
 	}
+	
+	
+//	@PostMapping("/resetpassword")
+//	ResponseEntity<String> resetpassword( 
+//			HttpServletResponse httpServletResponse, 
+//			@RequestParam("username") final String username, 
+//			@RequestParam("newpassword") final String newpassword) {
+//		try {
+//			
+//			if (username == null || username.trim().length() == 0 || newpassword == null || newpassword.trim().length() == 0) {
+//				throw new Exception("Bad Request");
+//			}
+//			
+//			boolean userExists = userRepository.existsByUsername(username);
+//			if (userExists) {
+//				Integer response = userDao.updateEncodedPassword(username, newpassword);
+//				if (response == 0) {
+//					return new ResponseEntity<String>("SUCCESS", HttpStatus.OK);
+//				} else {
+//					log.error("Error Updating User Password: {}", response);
+//					return new ResponseEntity<String>("FAIL", HttpStatus.BAD_REQUEST);
+//				}
+//			} else {
+//				return new ResponseEntity<String>("UPDATE_FAIL_NO_USER", HttpStatus.BAD_REQUEST);
+//			}
+//		} catch (Exception e) {
+//			return new ResponseEntity<String>("FAIL", HttpStatus.BAD_REQUEST);
+//		}
+//
+//	}
+
 	
 	
 	

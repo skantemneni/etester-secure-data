@@ -118,7 +118,7 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
 
 	private static final String[] LOGIN_URL_WHITELIST = { "/api/auth/**", "/logincontroller/login", "/register", "/resetpassword" };
 	private static final String[] H2_CONSOLE_PATH = { "h2-console/**", "/h2-ui/**" };
-	private static final String[] AUTHENTICATED_WHITELIST = { "/api/test/**", "/", "/data/*", "/data/*/*", "/data/**", };
+	private static final String[] AUTHENTICATED_WHITELIST = { "/api/test/**", "/api/data/**", "/", "/data/*", "/data/*/*", "/data/**", };
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

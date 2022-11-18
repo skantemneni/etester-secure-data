@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import com.etester.security.login.models.Role;
-import com.etester.security.login.models.User;
+import com.etester.security.login.models.LoginUser;
 
 @Repository
 public class JdbcUserRepository extends NamedParameterJdbcDaoSupport implements UserRepository {
@@ -32,13 +32,13 @@ public class JdbcUserRepository extends NamedParameterJdbcDaoSupport implements 
 	}
 
 	@Override
-	public Optional<User> findByUsername(String username) {
+	public Optional<LoginUser> findByUsername(String username) {
 		String sqlUser = findByUsernameForLoginSQL;
-        BeanPropertyRowMapper<User> userRowMapper = BeanPropertyRowMapper.newInstance(User.class);
+        BeanPropertyRowMapper<LoginUser> userRowMapper = BeanPropertyRowMapper.newInstance(LoginUser.class);
         Map<String, Object> args = new HashMap<String, Object>();
         args.put("username", username);
 		// queryForObject throws an exception when the Level is missing.  this should be ignored/swallowed
-        User user = null;
+        LoginUser user = null;
         try {
         	user = getNamedParameterJdbcTemplate().queryForObject(sqlUser, args, userRowMapper);
         } catch (IncorrectResultSizeDataAccessException e) {}
@@ -81,7 +81,7 @@ public class JdbcUserRepository extends NamedParameterJdbcDaoSupport implements 
 	}
 
 	@Override
-	public Optional<User> save(User user) {
+	public Optional<LoginUser> save(LoginUser user) {
 		// Add the user
 		SqlParameterSource userParameterSource = new BeanPropertySqlParameterSource(user);
         try {

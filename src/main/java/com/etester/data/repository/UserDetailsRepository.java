@@ -2,7 +2,7 @@ package com.etester.data.repository;
 
 import java.util.Optional;
 
-import com.etester.security.login.models.User;
+import com.etester.data.domain.user.User;
 
 public interface UserDetailsRepository {
 
@@ -21,5 +21,12 @@ public interface UserDetailsRepository {
 	Boolean existsByUsername(String username);
 
 	Boolean existsByEmailAddress(String emailAddress);
+
+
+	
+//    public user findbyusername(string username);
+    
+
+
 
 }

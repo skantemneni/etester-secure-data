@@ -1,18 +1,13 @@
-package com.etester.security.login.payload.response;
+package com.etester.data.payload.response;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.persistence.Column;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 import com.etester.data.domain.content.ChannelSubscription;
 import com.etester.data.domain.content.core.Channel;
 import com.etester.data.domain.profile.Userprofile;
 import com.etester.data.domain.test.instance.Usertest;
-import com.etester.security.login.models.User;
+import com.etester.data.domain.user.User;
 
 import lombok.Data;
 
@@ -20,14 +15,14 @@ import lombok.Data;
 public class UserDetailsResponse {
 	private Long idUser;
 	private String username;
-    private boolean enabled;
+	private boolean enabled;
 	private String firstName;
 	private String lastName;
 	private String middleName;
 	private String emailAddress;
 	private List<String> roles;
-    private List<String> permissions;
-    private List<Usertest> tests;
+	private List<String> permissions;
+	private List<Usertest> tests;
 	private List<Userprofile> profiles;
 	private List<ChannelSubscription> channelSubscriptions;
 	private List<Long> idOrganizationsList;
@@ -44,9 +39,11 @@ public class UserDetailsResponse {
 		this.lastName = user.getLastName();
 		this.middleName = user.getMiddleName();
 		this.emailAddress = user.getEmailAddress();
-		List<String> roles = user.getRoles().stream().map(role -> role.getAuthority().toString())
-				.collect(Collectors.toList());
-		this.roles = roles;
+		if (user.getAuthorities() != null) {
+			List<String> roles = user.getAuthorities().stream().map(authority -> authority.getAuthority().toString())
+					.collect(Collectors.toList());
+			this.roles = roles;
+		}
 		this.permissions = user.getPermissions();
 		this.tests = user.getTests();
 		this.profiles = user.getProfiles();

@@ -20,7 +20,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -74,7 +73,211 @@ public class JdbcDaoStaticHelper {
 	public static String ANONYMOUS_USER_NAME = "anonymousUser";
 	public static Long ANONYMOUS_USER_ID = 999999l;
 	
+	/**************************************************************************************************************
+	 * I will be gathering all the methods I am seeing being used below this line
+	 *************************************************************************************************************/
+	/**
+	 * A method to retrieve User from the database.  Note that I am no longer using User to mean the Security Authentication user as per 
+	 * Spring Standards, hence, no longer extend "org.springframework.security.core.userdetails.User"
+	 * @param namedParameterJdbcTemplate
+	 * @param username
+	 * @return
+	 */
+	public static User findUserByUsername(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username) {
+		return findUserByUsername(namedParameterJdbcTemplate, username, false);
+	}
+	public static User findUserByUsername(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username, boolean withDetails) {
+		User user = findUserByUsernameForLogin(namedParameterJdbcTemplate, username);
+		if (user != null && withDetails) {
+			// Set Authorities (Roles)
+			user.setAuthorities(getAuthoritiesForUser (namedParameterJdbcTemplate, user.getUsername()));
+			// Set Permissions (in a traditional sense, this is an authority.  but since I already use authority to mean role....here)
+			user.setPermissions(getPermissionsForUser (namedParameterJdbcTemplate, user.getUsername()));
+			// If the user has an Organization, then associate the Organization's channle's to the user.  Typically providers are associated 
+			// with Organizations and hence will have this populated
+			if (user.getIdOrganization() != null) {
+				user.setChannels(getChannelsForOrganization (namedParameterJdbcTemplate, user.getIdOrganization()));
+			}
+			// Does the user have any subscriptions for student channels.  Typical for a Student.  
+			user.setSubscriptions(getSubscriptionChannelsForUser (namedParameterJdbcTemplate, user.getIdUser()));
+		}
+        return user;
+	}
 
+	public static User findUserByUserId(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idUser) {
+		return findUserByUserId(namedParameterJdbcTemplate, idUser, false);
+	}
+	public static User findUserByUserId(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idUser, boolean withDetails) {
+		User user = findUserByUserIdForLogin(namedParameterJdbcTemplate, idUser);
+		if (user != null && withDetails) {
+			// Set Authorities (Roles)
+			user.setAuthorities(getAuthoritiesForUser (namedParameterJdbcTemplate, user.getUsername()));
+			// Set Permissions (in a traditional sense, this is an authority.  but since I already use authority to mean role....here)
+			user.setPermissions(getPermissionsForUser (namedParameterJdbcTemplate, user.getUsername()));
+			// If the user has an Organization, then associate the Organization's channle's to the user.  Typically providers are associated 
+			// with Organizations and hence will have this populated
+			if (user.getIdOrganization() != null) {
+				user.setChannels(getChannelsForOrganization (namedParameterJdbcTemplate, user.getIdOrganization()));
+			}
+			// Does the user have any subscriptions for student channels.  Typical for a Student.  
+			user.setSubscriptions(getSubscriptionChannelsForUser (namedParameterJdbcTemplate, user.getIdUser()));
+		}
+        return user;
+	}
+
+	/**
+	 * findUserByUsernameForLogin returns a User with a metadata filled in.  See the UserDao.findByUsernameWithOrganizationSQL for details.
+	 * @param namedParameterJdbcTemplate
+	 * @param username
+	 * @return
+	 */
+	public static User findUserByUsernameForLogin(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username) {
+        String sql = UserDao.findByUsernameWithOrganizationSQL;
+        BeanPropertyRowMapper<User> userRowMapper = BeanPropertyRowMapper.newInstance(User.class);
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("username", username);
+		// queryForObject throws an exception when the Level is missing.  this should be ignored/swallowed
+        User user = null;
+        try {
+        	user = namedParameterJdbcTemplate.queryForObject(sql, args, userRowMapper);
+        } catch (IncorrectResultSizeDataAccessException e) {}
+        return user;
+	}
+
+	/**
+	 * findUserByUsernameForLogin returns a User with a metadata filled in.  See the UserDao.findByUsernameWithOrganizationSQL for details.
+	 * @param namedParameterJdbcTemplate
+	 * @param username
+	 * @return
+	 */
+	public static User findUserByUserIdForLogin(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idUser) {
+        String sql = UserDao.findByUserIdWithOrganizationSQL;
+        BeanPropertyRowMapper<User> userRowMapper = BeanPropertyRowMapper.newInstance(User.class);
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("idUser", idUser);
+		// queryForObject throws an exception when the Level is missing.  this should be ignored/swallowed
+        User user = null;
+        try {
+        	user = namedParameterJdbcTemplate.queryForObject(sql, args, userRowMapper);
+        } catch (IncorrectResultSizeDataAccessException e) {}
+        return user;
+	}
+
+	/**
+	 * Get the Authorities (roles) for the User
+	 * @param namedParameterJdbcTemplate
+	 * @param username
+	 * @return
+	 */
+	private static List<Authority> getAuthoritiesForUser(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username) {
+		String sql = UserDao.findAllAuthoritiesByUsernameSQL;
+		BeanPropertyRowMapper<Authority> authorityRowMapper = BeanPropertyRowMapper.newInstance(Authority.class);
+		Map<String, Object> args = new HashMap<String, Object>();
+        args.put("username", username);
+		List<Authority> authorities = namedParameterJdbcTemplate.query(sql, args, authorityRowMapper);
+		return authorities;
+	}
+
+	/**
+	 * Get the Permissions (roles) for the User
+	 * @param namedParameterJdbcTemplate
+	 * @param username
+	 * @return
+	 */
+	private static List<String> getPermissionsForUser(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username) {
+		ArrayList<String> permissionsList = new ArrayList<String>();
+		String sql = UserDao.findAllPermissionsByUsernameSQL;
+		BeanPropertyRowMapper<Permission> permissionRowMapper = BeanPropertyRowMapper.newInstance(Permission.class);
+		Map<String, Object> args = new HashMap<String, Object>();
+        args.put("username", username);
+		List<Permission> permissions = namedParameterJdbcTemplate.query(sql, args, permissionRowMapper);
+		if (permissions != null) {
+			for (Permission permission : permissions) {
+				permissionsList.add(permission.getPrivilege());
+			}
+		}
+		return permissionsList;
+	}
+
+	/**
+	 * Get the Channel subscriptions for user
+	 * @param namedParameterJdbcTemplate
+	 * @param idUser
+	 * @return
+	 */
+	private static List<Channel> getSubscriptionChannelsForUser(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idUser) {
+		List<Channel> channels= null;
+		String sql = UserDao.findSubscriptionChannelsForUserIdSQL;
+		BeanPropertyRowMapper<Channel> channelRowMapper = BeanPropertyRowMapper.newInstance(Channel.class);
+		Map<String, Object> args = new HashMap<String, Object>();
+        args.put("idUser", idUser);
+		channels = namedParameterJdbcTemplate.query(sql, args, channelRowMapper);
+		return channels;
+	}
+
+	/**
+	 * Get the Channels associated with the Organization.
+	 * @param namedParameterJdbcTemplate
+	 * @param idOrganization
+	 * @return
+	 */
+	private static List<Channel> getChannelsForOrganization(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idOrganization) {
+		List<Channel> channels= null;
+		String sql = UserDao.findChannelsByOrganizationIdSQL;
+		BeanPropertyRowMapper<Channel> channelRowMapper = BeanPropertyRowMapper.newInstance(Channel.class);
+		Map<String, Object> args = new HashMap<String, Object>();
+        args.put("idOrganization", idOrganization);
+		channels = namedParameterJdbcTemplate.query(sql, args, channelRowMapper);
+		return channels;
+	}
+
+//	private static User setUserPermissions (NamedParameterJdbcTemplate namedParameterJdbcTemplate, User user) {
+//    	if (user != null) {
+//    		// TODO: SESI - WTF happened here 
+////    		user.builder().authorities(getAuthoritiesForUser (namedParameterJdbcTemplate, user.getUsername()));
+//    		user.setPermissions(getPermissionsForUser (namedParameterJdbcTemplate, user.getUsername()));
+//    		if (user.getIdOrganization() != null) {
+//    			user.setChannels(getChannelsForOrganization (namedParameterJdbcTemplate, user.getIdOrganization()));
+//    		}
+//    		user.setSubscriptions(getSubscriptionChannelsForUser (namedParameterJdbcTemplate, user.getIdUser()));
+//    	}
+//		return user;
+//	}
+//	
+
+	
+	/**************************************************************************************************************
+	 * I will be gathering all the methods I am seeing being used above this line
+	 *************************************************************************************************************/
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public static List<Long> getMySectionIdList(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
 		List<Long> myList = new ArrayList<Long>();
 		// It is absolutely essential we be logged in and have a user id to execute this function
@@ -1517,57 +1720,6 @@ public class JdbcDaoStaticHelper {
         return channelSubscription;
 	}
 
-	private static List<Channel> getSubscriptionChannelsForUser(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idUser) {
-		List<Channel> channels= null;
-		String sql = UserDao.findSubscriptionChannelsForUserIdSQL;
-		BeanPropertyRowMapper<Channel> channelRowMapper = BeanPropertyRowMapper.newInstance(Channel.class);
-		Map<String, Object> args = new HashMap<String, Object>();
-        args.put("idUser", idUser);
-		channels = namedParameterJdbcTemplate.query(sql, args, channelRowMapper);
-		return channels;
-	}
-
-	private static List<Channel> getChannelsForOrganization(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idOrganization) {
-		List<Channel> channels= null;
-		String sql = UserDao.findChannelsByOrganizationIdSQL;
-		BeanPropertyRowMapper<Channel> channelRowMapper = BeanPropertyRowMapper.newInstance(Channel.class);
-		Map<String, Object> args = new HashMap<String, Object>();
-        args.put("idOrganization", idOrganization);
-		channels = namedParameterJdbcTemplate.query(sql, args, channelRowMapper);
-		return channels;
-	}
-
-	private static List<Authority> getAuthoritiesForUser(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username) {
-		ArrayList<String> authoritiesList = new ArrayList<String>();
-		String sql = UserDao.findAllAuthoritiesByUsernameSQL;
-		BeanPropertyRowMapper<Authority> authorityRowMapper = BeanPropertyRowMapper.newInstance(Authority.class);
-		Map<String, Object> args = new HashMap<String, Object>();
-        args.put("username", username);
-		List<Authority> authorities = namedParameterJdbcTemplate.query(sql, args, authorityRowMapper);
-		return authorities;
-//		if (authorities != null) {
-//			for (Authority authority : authorities) {
-//				authoritiesList.add(authority.getAuthority());
-//			}
-//		}
-//		return authoritiesList;
-	}
-
-	private static List<String> getPermissionsForUser(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username) {
-		ArrayList<String> permissionsList = new ArrayList<String>();
-		String sql = UserDao.findAllPermissionsByUsernameSQL;
-		BeanPropertyRowMapper<Permission> permissionRowMapper = BeanPropertyRowMapper.newInstance(Permission.class);
-		Map<String, Object> args = new HashMap<String, Object>();
-        args.put("username", username);
-		List<Permission> permissions = namedParameterJdbcTemplate.query(sql, args, permissionRowMapper);
-		if (permissions != null) {
-			for (Permission permission : permissions) {
-				permissionsList.add(permission.getPrivilege());
-			}
-		}
-		return permissionsList;
-	}
-
 	public static void updateDerivedSection(Section derivedSection, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(derivedSection);
         namedParameterJdbcTemplate.update(SectionDao.updateSectionSQL, parameterSource);
@@ -1698,90 +1850,7 @@ public class JdbcDaoStaticHelper {
 		return findUserByUsername(namedParameterJdbcTemplate, username);
 	}
 
-	/**
-	 * A method to retrieve User from the database.  However, there is an issue.  I had to extend "org.springframework.security.core.userdetails.User"
-	 * for my User.  The problem with Spring User is that there are not exposed "setUsername" and "setPassword" methods.  So I am playing a trick.  
-	 * @param namedParameterJdbcTemplate
-	 * @param username
-	 * @return
-	 */
-	public static User findUserByUsernameForLogin(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username) {
-        String sql = UserDao.findByUsernameWithOrganizationSQL;
-        BeanPropertyRowMapper<Webuser> userRowMapper = BeanPropertyRowMapper.newInstance(Webuser.class);
-        Map<String, Object> args = new HashMap<String, Object>();
-        args.put("username", username);
-		// queryForObject throws an exception when the Level is missing.  this should be ignored/swallowed
-        Webuser webuser = null;
-        try {
-        	webuser = namedParameterJdbcTemplate.queryForObject(sql, args, userRowMapper);
-        } catch (IncorrectResultSizeDataAccessException e) {}
-        List<Authority> authorities = getAuthoritiesForUser (namedParameterJdbcTemplate, username);
-        // Now cast a Webuser to User
-        User user = new User(webuser.getUsername(), webuser.getPassword(), authorities);
-        user.setIdUser(webuser.getIdUser());
-        user.setEmailAddress(webuser.getEmailAddress());
-        user.setFirstName(webuser.getFirstName());
-        user.setLastName(webuser.getLastName());
-        user.setMiddleName(webuser.getMiddleName());
-        user.setIdOrganization(webuser.getIdOrganization());
-        user.setOrganizationName(webuser.getOrganizationName());
-        user.setEnabled(webuser.getEnabled());
-        return user;
-	}
-
-	/**
-	 * A method to retrieve User from the database.  However, there is an issue.  I had to extend "org.springframework.security.core.userdetails.User"
-	 * for my User.  The problem with Spring User is that there are not exposed "setUsername" and "setPassword" methods.  So I am playing a trick.  
-	 * @param namedParameterJdbcTemplate
-	 * @param username
-	 * @return
-	 */
-	public static User findUserByUsername(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username) {
-		User user = findUserByUsernameForLogin(namedParameterJdbcTemplate, username);
-        user = setUserPermissions(namedParameterJdbcTemplate, user);
-        return user;
-	}
-
-	public static User findUserByUserId(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idUser) {
-        String sql = UserDao.findByUserIdSQL;
-        BeanPropertyRowMapper<Webuser> userRowMapper = BeanPropertyRowMapper.newInstance(Webuser.class);
-        Map<String, Object> args = new HashMap<String, Object>();
-        args.put("id_user", idUser);
-		// queryForObject throws an exception when the Level is missing.  this should be ignored/swallowed
-        Webuser webuser = null;
-        try {
-        	webuser = namedParameterJdbcTemplate.queryForObject(sql, args, userRowMapper);
-        } catch (IncorrectResultSizeDataAccessException e) {}
-        List<Authority> authorities = getAuthoritiesForUser (namedParameterJdbcTemplate, webuser.getUsername());
-        // Now cast a Webuser to User
-        User user = new User(webuser.getUsername(), webuser.getPassword(), authorities);
-        user.setIdUser(webuser.getIdUser());
-        user.setEmailAddress(webuser.getEmailAddress());
-        user.setFirstName(webuser.getFirstName());
-        user.setLastName(webuser.getLastName());
-        user.setMiddleName(webuser.getMiddleName());
-        user.setIdOrganization(webuser.getIdOrganization());
-        user.setOrganizationName(webuser.getOrganizationName());
-        user.setEnabled(webuser.getEnabled());
-        
-        user = setUserPermissions(namedParameterJdbcTemplate, user);
-
-        return user;
-	}
-	private static User setUserPermissions (NamedParameterJdbcTemplate namedParameterJdbcTemplate, User user) {
-    	if (user != null) {
-    		// TODO: SESI - WTF happened here 
-//    		user.builder().authorities(getAuthoritiesForUser (namedParameterJdbcTemplate, user.getUsername()));
-    		user.setPermissions(getPermissionsForUser (namedParameterJdbcTemplate, user.getUsername()));
-    		if (user.getIdOrganization() != null) {
-    			user.setChannels(getChannelsForOrganization (namedParameterJdbcTemplate, user.getIdOrganization()));
-    		}
-    		user.setSubscriptions(getSubscriptionChannelsForUser (namedParameterJdbcTemplate, user.getIdUser()));
-    	}
-		return user;
-	}
-	
-    public static Webuser findWebuserForUserId(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idUser) {
+	public static Webuser findWebuserForUserId(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idUser) {
 		String sql = UserDao.findWebuserForUserIdSQL;
 		BeanPropertyRowMapper<Webuser> webuserRowMapper = BeanPropertyRowMapper.newInstance(Webuser.class);
 		Map<String, Object> args = new HashMap<String, Object>();
