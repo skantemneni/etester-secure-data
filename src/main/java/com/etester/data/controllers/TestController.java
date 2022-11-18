@@ -24,7 +24,6 @@ import com.etester.data.domain.test.instance.JdbcUsertestDao;
 import com.etester.data.domain.test.instance.JdbcUsertestresponseDao;
 import com.etester.data.domain.test.instance.Usertest;
 import com.etester.data.domain.test.instance.Usertestresponse;
-// import com.etester.data.domain.user.UserDao;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +50,29 @@ public class TestController {
 		this.testDao = testDao;
 	}
 
+
+	@GetMapping("/get/alltests")
+	List<Test> getAllTests(HttpServletResponse httpServletResponse) {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		log.info("User: {} is calling getAllTests: {}", username);
+			httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+			return testDao.findAllTests();
+	}
+
+	
+	/**
+	 * This retrieves the Test  for administering the test in the eTester User app.  
+	 * @param httpServletResponse
+	 * @param idTest
+	 * @return
+	 */
+	@GetMapping("/get/alltestsinchannel/{idChannel}")
+	List<Test> getAllTestsForChannel(HttpServletResponse httpServletResponse, @PathVariable Long idChannel) {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		log.info("User: {} is calling getAllTestsForChannel for Test with ID: {} and Channel {}", username, idChannel);
+		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+		return testDao.findAllTestsInChannel(idChannel);
+	}
 
 	/**
 	 * This retrieves the Test  for administering the test in the eTester User app.  

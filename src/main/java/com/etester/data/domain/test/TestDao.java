@@ -209,16 +209,18 @@ public interface TestDao {
 //    		+ "LEFT JOIN usertestresponse ts ON ut.id_usertest = ts.id_usertest "
 //    		+ "WHERE ut.id_usertest = :idUsertest AND ut.id_user = :userid";
 //
+    
+	public List<Test> findAllTests();
+    public List<Test> findAllTestsInChannel(Long idChannel);
+    public List<Test> findAllTestsInChannelByType(Long idChannel, String testType);
+
+
     public Test findByTestId(Long idTest);
 
     public Test findCompleteTestById(Long idTest);
 
 	public List<Test> findTestsByTestName(String name);
 	
-    public List<Test> findAllTests();
-    public List<Test> findAllTestsInChannel(Long idChannel);
-    public List<Test> findAllTestsInChannelByType(Long idChannel, String testType);
-
     public List<Test> findAllEditableTestsOwnedByCurrentProvider();
     public List<Test> findAllEditableTestsOwnedByProvider(Long idProvider);
     public List<Test> findEditableTestsOwnedByCurrentProviderByType(String testType);
