@@ -1,6 +1,7 @@
 package com.etester.data.domain.test;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.etester.data.domain.util.UpdateStatusBean;
 
@@ -267,7 +268,7 @@ public interface TestDao {
     // Most important function used on administering the test.  It returns a Test object 
     // with any associated response.  Not sure where this needs to be situated - TestDao 
     // or UsaertestDao.  For now, though, I choose to put it here.  
-	public TestWithResponse findTestByUsertestIdWithResponse(Long idUsertest);
+	public Optional<TestWithResponse> findTestByUsertestIdWithResponse(Long idUsertest);
 
     // Used by the provider while grading the test.  
 	public TestWithResponse findProviderTestByUsertestIdWithResponse(Long idUsertest);

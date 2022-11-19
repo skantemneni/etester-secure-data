@@ -32,4 +32,7 @@ logging:
   level:
     org:
       springframework:
-        security: trace
+        security: debug
+    com.etester:
+      security: trace
+      data: debug

@@ -100,10 +100,20 @@ public class JdbcDaoStaticHelper {
 			}
 			// Does the user have any subscriptions for student channels.  Typical for a Student.  
 			user.setSubscriptions(getSubscriptionChannelsForUser (namedParameterJdbcTemplate, user.getIdUser()));
-		}
+			// Does the user have any user tests assigned?
+			user.setTests(findAllUsertestsForUsername(namedParameterJdbcTemplate, user.getUsername()));		}
         return user;
 	}
 
+	public static List<Usertest> findAllUsertestsForUsername(NamedParameterJdbcTemplate namedParameterJdbcTemplate, String username) {
+        String sql = UsertestDao.findAllUsertestsForUserNameSQL;
+        BeanPropertyRowMapper<Usertest> usertestRowMapper = BeanPropertyRowMapper.newInstance(Usertest.class);
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("username", username);
+        List<Usertest> tests = namedParameterJdbcTemplate.query(sql, args, usertestRowMapper);
+        return tests;
+	}
+	
 	public static User findUserByUserId(NamedParameterJdbcTemplate namedParameterJdbcTemplate, Long idUser) {
 		return findUserByUserId(namedParameterJdbcTemplate, idUser, false);
 	}

@@ -1,10 +1,13 @@
 package com.etester.data.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -127,11 +130,27 @@ public class TestController {
 	 */
 	  @PreAuthorize("hasRole('USER') or hasRole('PROVIDER') or hasRole('ADMIN')")
 	@GetMapping("/get/testwithresponse/{idUsertest}")
-	TestWithResponse getTestWithResponse(HttpServletResponse httpServletResponse, @PathVariable Long idUsertest) {
+	  ResponseEntity<TestWithResponse> getTestWithResponse(HttpServletResponse httpServletResponse, @PathVariable Long idUsertest) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		log.info("User: {} is calling getTestWithResponse for User test with ID: {}", username, idUsertest);
-		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
-		return testDao.findTestByUsertestIdWithResponse(idUsertest);
+//
+//		httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+//		return testDao.findTestByUsertestIdWithResponse(idUsertest);
+		
+		
+		
+		Optional<TestWithResponse> testWithResponse = null;
+		testWithResponse = testDao.findTestByUsertestIdWithResponse(idUsertest);
+		if (testWithResponse.isPresent()) {
+			return ResponseEntity.ok().body(testWithResponse.get());
+		} else {
+			String errorMessage = String.format("TestWithResponse Not found for username: '%s' and UsertestID: '%s'", username, idUsertest);
+			log.info(errorMessage);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
+		
+		
+		
 	}
 
 	/**

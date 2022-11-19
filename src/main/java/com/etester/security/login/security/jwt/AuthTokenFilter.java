@@ -19,6 +19,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.etester.security.login.security.services.UserDetailsServiceImpl;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class AuthTokenFilter extends OncePerRequestFilter {
 	@Autowired
 	private JwtUtils jwtUtils;
@@ -44,6 +47,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
 				SecurityContextHolder.getContext().setAuthentication(authentication);
+			} else {
+				log.debug("JWT Auth Token is either Null, Not Valid or Expired.  Token: {}", jwt);
 			}
 		} catch (Exception e) {
 			logger.error("Cannot set user authentication: {}", e);
@@ -60,8 +65,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	 */
 	private String parseJwt(HttpServletRequest request) {
 		String jwt = getJwtFromAuthHeader(request); 
-		if (jwt == null) {
+		if (jwt != null) {
+			log.debug("Lord Shiva sent a Auth Token: {}", jwt);
+		} else {
 			jwt = getJwtFromCookie(request);
+			log.debug("Lord Shiva sent a Cookie: {}", jwt);
 		}
 		return jwt;
 	}

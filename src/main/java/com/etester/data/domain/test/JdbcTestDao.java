@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -806,7 +807,7 @@ public class JdbcTestDao extends JdbcDataDaoParent implements TestDao {
     // with any associated response.  Not sure where this needs to be situated - TestDao 
     // or UsaertestDao.  For now, though, I choose to put it here.  
 	@Override
-	public TestWithResponse findTestByUsertestIdWithResponse(Long idUsertest) {
+	public Optional<TestWithResponse> findTestByUsertestIdWithResponse(Long idUsertest) {
 		Long loggedinStudentId = JdbcDaoStaticHelper.getCurrentUserId(getNamedParameterJdbcTemplate());
         // first get the usertest response, uesrtest status and uesrtest test id corresponding to the user test
         // here we use a temporary test object to do that
@@ -816,14 +817,6 @@ public class JdbcTestDao extends JdbcDataDaoParent implements TestDao {
         args.put("idUsertest", idUsertest);
         args.put("userid", loggedinStudentId);
         
-        
-        
-        
-//        args.put("userid", 1);
-		
-        
-        
-        
         // queryForObject throws an exception when the Level is missing.  this should be ignored/swallowed
         String sql = findTestByUsertestIdWithResponseSQL;
         try {
@@ -831,20 +824,16 @@ public class JdbcTestDao extends JdbcDataDaoParent implements TestDao {
         	// massage the published and public attributes
         } catch (IncorrectResultSizeDataAccessException e) {}
         
-        if (testWithResponse == null) {
-        	// return "test not found"
-        	testWithResponse = new TestWithResponse();
-        	testWithResponse.setIdTest(-1l);
-        	return testWithResponse;
-        }
         // now locate the actual test...
-        Test test = locateTestInSystem(testWithResponse.getIdTest());
-        if (test == null) {
-        	testWithResponse.setIdTest(-1l);
-        	return testWithResponse;
+        if (testWithResponse != null) {
+        	Test test = locateTestInSystem(testWithResponse.getIdTest());
+        	if (test == null) {
+        		testWithResponse.setIdTest(-1l);
+        	} else {
+        		testWithResponse.setTest(test);
+        	}
         }
-        testWithResponse.setTest(test);
-        return testWithResponse;
+        return Optional.ofNullable(testWithResponse);
 	}
 	
 	// Used by the provider while grading the test.  
