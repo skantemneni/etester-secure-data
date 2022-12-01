@@ -19,6 +19,8 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.xml.bind.DatatypeConverter;
+
 public class EtesterTestinstanceJdbcCacheClient extends NamedParameterJdbcDaoSupport {
 	
 	// Serialized Testinstance Stuff - used for caching
@@ -76,7 +78,7 @@ public class EtesterTestinstanceJdbcCacheClient extends NamedParameterJdbcDaoSup
 		// Base64 is in java 8 --- java.util.Base64
 		//	String uncompressedTestinstanceStringJson = dataCompressor.decompressToString(Base64.getDecoder().decode(completeTestinstanceStringJson));
 		// 	For Java 6 & 7
-		String uncompressedTestinstanceStringJson = dataCompressor.decompressToString(javax.xml.bind.DatatypeConverter.parseBase64Binary(completeTestinstanceStringJson));
+		String uncompressedTestinstanceStringJson = dataCompressor.decompressToString(DatatypeConverter.parseBase64Binary(completeTestinstanceStringJson));
         
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -115,7 +117,7 @@ public class EtesterTestinstanceJdbcCacheClient extends NamedParameterJdbcDaoSup
 		// Base64 is in java 8 --- java.util.Base64
 		//	String compressedTestinstanceStringJson = Base64.encode(dataCompressor.compress(completeTestinstanceStringJson));
 		// 	For Java 6 & 7
-		String compressedTestinstanceStringJson = javax.xml.bind.DatatypeConverter.printBase64Binary(dataCompressor.compress(completeTestinstanceStringJson));
+		String compressedTestinstanceStringJson = DatatypeConverter.printBase64Binary(dataCompressor.compress(completeTestinstanceStringJson));
 		
 		SerializedTestinstance serializedTestinstance = new SerializedTestinstance();
 		serializedTestinstance.setIdTestinstance(testinstance.getIdTestinstance());

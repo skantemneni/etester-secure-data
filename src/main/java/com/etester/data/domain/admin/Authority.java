@@ -1,10 +1,9 @@
 package com.etester.data.domain.admin;
 
-import javax.persistence.Column;
-import javax.persistence.Table;
-
 import org.springframework.security.core.GrantedAuthority;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 @Data

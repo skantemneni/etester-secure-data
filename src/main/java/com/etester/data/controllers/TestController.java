@@ -3,9 +3,6 @@ package com.etester.data.controllers;
 import java.util.List;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +25,8 @@ import com.etester.data.domain.test.instance.JdbcUsertestresponseDao;
 import com.etester.data.domain.test.instance.Usertest;
 import com.etester.data.domain.test.instance.Usertestresponse;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 /**

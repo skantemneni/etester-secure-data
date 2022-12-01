@@ -1,9 +1,10 @@
 package com.etester.data.dao;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+
+import jakarta.annotation.PostConstruct;
 
 public abstract class JdbcDataDaoParent extends NamedParameterJdbcDaoSupport {
 

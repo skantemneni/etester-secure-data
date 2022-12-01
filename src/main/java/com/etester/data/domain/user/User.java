@@ -3,18 +3,17 @@ package com.etester.data.domain.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Transient;
-
 import com.etester.data.domain.admin.Authority;
 import com.etester.data.domain.content.ChannelSubscription;
 import com.etester.data.domain.content.core.Channel;
 import com.etester.data.domain.profile.Userprofile;
 import com.etester.data.domain.test.instance.Usertest;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.ToString;
 

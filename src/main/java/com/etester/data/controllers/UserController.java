@@ -2,8 +2,6 @@ package com.etester.data.controllers;
 
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +16,7 @@ import com.etester.data.domain.user.User;
 import com.etester.data.payload.response.UserDetailsResponse;
 import com.etester.data.repository.JdbcUserDetailsRepository;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -23,16 +21,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.etester.security.login.models.ERole;
-import com.etester.security.login.models.Role;
 import com.etester.security.login.models.LoginUser;
+import com.etester.security.login.models.Role;
 import com.etester.security.login.payload.request.LoginRequest;
 import com.etester.security.login.payload.request.SignupRequest;
-import com.etester.security.login.payload.response.MessageResponse;
 import com.etester.security.login.payload.response.LoginUserInfoResponse;
+import com.etester.security.login.payload.response.MessageResponse;
 import com.etester.security.login.repository.JdbcUserRepository;
 import com.etester.security.login.repository.RoleRepository;
 import com.etester.security.login.security.jwt.JwtUtils;
 import com.etester.security.login.security.services.UserDetailsImpl;
+
+import jakarta.validation.Valid;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController

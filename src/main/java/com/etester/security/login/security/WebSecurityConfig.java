@@ -120,11 +120,29 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
 	private static final String[] H2_CONSOLE_PATH = { "h2-console/**", "/h2-ui/**" };
 	private static final String[] AUTHENTICATED_WHITELIST = { "/api/data/**", };
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	// https://docs.spring.io/spring-security/reference/whats-new.html
+	// gh-11939 - Remove deprecated antMatchers, mvcMatchers, regexMatchers helper methods from Java Configuration. 
+	// Instead, use requestMatchers or HttpSecurity#securityMatchers.
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers(LOGIN_URL_WHITELIST).permitAll().antMatchers(AUTHENTICATED_WHITELIST).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+				.requestMatchers(LOGIN_URL_WHITELIST).permitAll().requestMatchers(AUTHENTICATED_WHITELIST).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 //        .antMatchers(H2_CONSOLE_PATH).permitAll()
 				.anyRequest().authenticated()
 				;
@@ -139,4 +157,29 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
 
 		return http.build();
 	}
+
+
+
+//	@Bean
+//	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//		http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
+//				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+//				.antMatchers(LOGIN_URL_WHITELIST).permitAll().antMatchers(AUTHENTICATED_WHITELIST).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+////        .antMatchers(H2_CONSOLE_PATH).permitAll()
+//				.anyRequest().authenticated()
+//				;
+//
+//		// fix H2 database console: Refused to display ' in a frame because it set
+//		// 'X-Frame-Options' to 'deny'
+//		http.headers().frameOptions().sameOrigin();
+//
+//		http.authenticationProvider(authenticationProvider());
+//
+//		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+//
+//		return http.build();
+//	}
+	
+
+
 }

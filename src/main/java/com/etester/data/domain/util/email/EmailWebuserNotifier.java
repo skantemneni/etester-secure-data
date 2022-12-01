@@ -2,13 +2,13 @@ package com.etester.data.domain.util.email;
 
 import java.util.Locale;
 
-import javax.mail.internet.MimeMessage;
-
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+
+import jakarta.mail.internet.MimeMessage;
 
 
 public class EmailWebuserNotifier implements WebuserNotifier {
